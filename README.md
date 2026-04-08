@@ -1,3 +1,14 @@
+---
+title: Email Triage OpenEnv
+emoji: 📬
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+tags:
+  - openenv
+---
+
 # 📬 Email Triage OpenEnv
 
 An **OpenEnv-compatible environment** for training and evaluating AI agents on real-world email inbox triage. Agents must classify emails, flag escalations, archive noise, and draft professional replies — tasks every knowledge worker performs daily.
@@ -193,7 +204,7 @@ pytest tests/ -v
 pip install openenv-core
 
 # Push to your HF Space
-openenv push --repo-id your-username/email-triage-env
+openenv push --repo-id dazaiiosamuu/email-triage-env
 ```
 
 The Space must be tagged `openenv` for discovery.
