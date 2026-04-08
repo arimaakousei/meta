@@ -1,0 +1,71 @@
+spec_version: 1
+
+name: email-triage-env
+type: environment
+runtime: docker
+
+description: >
+  A real-world email triage environment for training and evaluating AI agents.
+  Agents must process an inbox by labelling emails (category + priority),
+  archiving spam/newsletters, flagging urgent escalations, and drafting
+  professional replies for crisis emails.
+
+tags:
+  - openenv
+  - email
+  - triage
+  - nlp
+  - real-world
+  - support
+  - productivity
+
+tasks:
+  - name: basic_triage
+    difficulty: easy
+    description: "Label 5 clear-cut emails by category and priority"
+    num_emails: 5
+    max_steps: 10
+
+  - name: mixed_inbox
+    difficulty: medium
+    description: "Triage 10 emails including spam, escalations, and ambiguous cases"
+    num_emails: 10
+    max_steps: 20
+
+  - name: crisis_inbox
+    difficulty: hard
+    description: "Handle 15 emails under SLA pressure; draft replies for escalations"
+    num_emails: 15
+    max_steps: 30
+
+action_space:
+  type: categorical
+  actions:
+    - label
+    - archive
+    - flag
+    - respond
+    - skip
+
+observation_space:
+  inbox: list[Email]
+  last_action_result: str
+  last_action_error: optional[str]
+  emails_processed: int
+  emails_remaining: int
+  task_description: str
+  reward: float
+  done: bool
+
+reward_range: [0.0, 1.0]
+reward_type: dense
+
+app:
+  port: 7860
+  endpoints:
+    - POST /reset
+    - POST /step
+    - GET /state
+    - GET /health
+    - GET /score
+    - GET /tasks

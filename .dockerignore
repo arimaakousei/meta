@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.git/
+.gitignore
+.env
+outputs/
+tests/
+*.md
+inference.py
+pyproject.toml
+openenv.yaml
