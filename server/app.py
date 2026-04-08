@@ -4,6 +4,7 @@ Exposes POST /reset, POST /step, GET /state, GET /health, GET /score
 """
 
 import os
+import uvicorn
 from typing import Dict, Any
 
 from fastapi import FastAPI, HTTPException
@@ -35,7 +36,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global env instance (single-session server — enough for HF Spaces eval)
 TASK_NAME = os.getenv("EMAIL_TRIAGE_TASK", "basic_triage")
 _env: EmailTriageEnvironment = EmailTriageEnvironment(task_name=TASK_NAME)
 
@@ -49,7 +49,6 @@ def health():
 
 @app.get("/tasks")
 def list_tasks():
-    """List all available tasks."""
     return {
         "tasks": [
             {
@@ -79,10 +78,6 @@ def list_tasks():
 
 @app.post("/reset", response_model=EmailTriageObservation)
 def reset(task: str = None):
-    """
-    Reset the environment and return the initial observation.
-    Optionally specify a task name to switch tasks.
-    """
     global _env
     global TASK_NAME
 
@@ -98,10 +93,6 @@ def reset(task: str = None):
 
 @app.post("/step")
 def step(action: EmailTriageAction):
-    """
-    Take one step in the environment.
-    Returns observation, reward, done flag, and info dict.
-    """
     obs, reward, done, info = _env.step(action)
     return {
         "observation": obs.model_dump(),
@@ -113,13 +104,11 @@ def step(action: EmailTriageAction):
 
 @app.get("/state", response_model=EmailTriageState)
 def get_state():
-    """Return the current environment state."""
     return _env.state()
 
 
 @app.get("/score")
 def get_score():
-    """Compute and return the final episode score (0.0–1.0)."""
     score = _env.compute_final_score()
     state = _env.state()
     return {
@@ -132,3 +121,19 @@ def get_score():
         "draft_replies": len(state.draft_replies),
         "cumulative_reward": state.cumulative_reward,
     }
+
+
+# ── Required by openenv validate ─────────────────────────────
+
+def main():
+    """Entry point for openenv / project.scripts."""
+    uvicorn.run(
+        "server.app:app",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", "7860")),
+        reload=False,
+    )
+
+
+if __name__ == "__main__":
+    main()
